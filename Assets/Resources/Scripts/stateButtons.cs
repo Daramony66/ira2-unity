@@ -126,6 +126,8 @@ public class HapticButtonReader : MonoBehaviour
         // Appeler getButtons pour mettre à jour l'état des boutons
         getButtons(hapticPlugin.DeviceIdentifier, buttons, lastButtons, ref inkwell);
 
+        // qsdzqds
+
         //Commmenté le 27/03 à 12h55
         //Traiter les événements des boutons
         if (buttons[1] == 1)
