@@ -122,7 +122,10 @@ public class HapticPlugin : MonoBehaviour
     #region Inspector
     // Plugin Menu 
 
+    #pragma warning disable 0414
     private bool enablef = false;
+    
+    #pragma warning disable 0414
     
 
 
@@ -606,8 +609,8 @@ public class HapticPlugin : MonoBehaviour
     bool isTouching;
     bool transformDirect = true;
 
-    public bool freezeTranslation = false; //Ajouté le 21/03 à 10h56
-    Vector3 frozenPosition; //Ajouté le 27/03 à 10h00
+    public bool freezeTranslation = false; //Ajouté le 27/03 à 17h00
+    Vector3 frozenPosition; //Ajouté le 27/03 à 17h00
 
     //private Vector3 frozenPosition; //Ajouté le 27/03 à 10h00
 
@@ -1597,12 +1600,14 @@ public class HapticPlugin : MonoBehaviour
 
     }
 
+    // Ajouté le 27/03 à 17h00
     public void FreezeStyloTranslation(bool freeze, Vector3 frozenPos)
     {
         freezeTranslation = freeze;
         frozenPosition = frozenPos;
     }
 
+    ///////////////////////////////////////////
     public void UpdateTransfrom()
     {
         Matrix4x4 newMatrix = transform.localToWorldMatrix * DeviceTransformRaw;
@@ -1640,6 +1645,7 @@ public class HapticPlugin : MonoBehaviour
         //Commenté le 27/03 à 10h05 //Décommenté le 27/03 à 11h16
         if (transformDirect==true)
         {
+            //Ajouté le 27/03 à 17h00
             rBody.position = targetPos;
             if (!freezeTranslation)
             {
@@ -1647,9 +1653,10 @@ public class HapticPlugin : MonoBehaviour
             }
             else
             {
-                // rBody.velocity = Vector3.zero;
+                // rBody.velocity = Vector3.zero; // Commenté le 27/03 à 17h00
                 VisualizationMesh.transform.position = frozenPosition;
             }
+            //////////////////////////////////////////////////////////////////////
             rBody.drag = 0;
             VisualizationMesh.transform.rotation = newMatrix.ExtractRotation();
         }
