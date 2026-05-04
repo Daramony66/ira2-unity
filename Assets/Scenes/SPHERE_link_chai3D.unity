@@ -6289,7 +6289,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 627136644499498341, guid: 1c1c96085332b424bb06a9fff4f79e6c, type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 627136644499498341, guid: 1c1c96085332b424bb06a9fff4f79e6c, type: 3}
       propertyPath: Max_RNav.x
@@ -6606,9 +6606,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 627136644499498340, guid: 1c1c96085332b424bb06a9fff4f79e6c, type: 3}
       insertIndex: -1
       addedObject: {fileID: 824349553}
-    - targetCorrespondingSourceObject: {fileID: 627136644499498340, guid: 1c1c96085332b424bb06a9fff4f79e6c, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 824349552}
   m_SourcePrefab: {fileID: 100100000, guid: 1c1c96085332b424bb06a9fff4f79e6c, type: 3}
 --- !u!114 &824349544 stripped
 MonoBehaviour:
@@ -6616,7 +6613,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 824349543}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 824349545}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 291b4ff7ce72bc642a8272270cb1e50d, type: 3}
   m_Name: 
@@ -6640,7 +6637,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   collider: {fileID: 119306278}
   tool0: {fileID: 265290276}
-  hapticPlugin: {fileID: 824349544}
+  hapticPlugin: {fileID: 0}
 --- !u!114 &824349547
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6703,21 +6700,6 @@ MonoBehaviour:
   virtualContactPlane: {fileID: 0}
   contactForceThreshold: 5
   scalingFactor: 0.025
---- !u!114 &824349552
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 824349545}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4ef66d71a37821a438afaafc4e0e9aca, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  collider: {fileID: 119306278}
-  tool0: {fileID: 265290276}
-  hapticPlugin: {fileID: 824349544}
 --- !u!114 &824349553
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6725,29 +6707,14 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 824349545}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7e341953943938a4ba8d9f1925df2ba2, type: 3}
+  m_Script: {fileID: 11500000, guid: 231c733ea40d2dc42938e7becd23aa09, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hapticPlugin: {fileID: 824349544}
-  scalingFactor: 0.025
-  forceGraph: {fileID: 2124397703}
-  palier0: 0
-  palier1: 0.2
-  palier2: 0.4
-  palier3: 0.6
-  seuil1_up: 3
-  seuil2_up: 8
-  seuil3_up: 15
-  seuil1_down: 1.5
-  seuil2_down: 5
-  seuil3_down: 10
-  maxForceDelta: 0.01
-  alphaBrut: 0.95
-  framesStableRequired: 5
-  testMode: 0
-  testForce: 0
+  collider: {fileID: 119306278}
+  tool0: {fileID: 265290276}
+  simpleStylus: {fileID: 1399468425}
 --- !u!1 &824404250
 GameObject:
   m_ObjectHideFlags: 0
@@ -11155,7 +11122,7 @@ TrailRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Time: 2
-  m_PreviewTimeScale: 0
+  m_PreviewTimeScale: 1
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 1
