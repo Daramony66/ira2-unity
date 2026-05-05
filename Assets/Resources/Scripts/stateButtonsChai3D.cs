@@ -1,5 +1,6 @@
 // Script specifique a la scene SPHERE_link_chai3D
 // Recoit position depuis Chai3D via UDP et deplace le collider
+// Recalage du stylus au TCP du robot au relachement du bouton
 
 using UnityEngine;
 using Unity.Robotics.ROSTCPConnector;
@@ -21,6 +22,16 @@ public class stateButtonsChai3D : MonoBehaviour
     public GameObject simpleStylus;
 
     private int button_pressed;
+    private int zeroCount = 0;
+    private const int ZERO_THRESHOLD = 10;
+
+    // Flag : true = bouton relache, on ignore les positions Chai3D
+    private bool isReleased = true;
+
+    // Offset entre position Chai3D et TCP au moment de l'appui
+    private Vector3 offset = Vector3.zero;
+    private bool firstPress = true;
+    private Vector3 lastChai3DPos = Vector3.zero;
 
     // UDP - reception depuis Chai3D
     private UdpClient udpReceiver;
@@ -39,9 +50,7 @@ public class stateButtonsChai3D : MonoBehaviour
         ros = ROSConnection.GetOrCreateInstance();
         ros.RegisterPublisher<PoseStampedMsg>("haptic_position");
         ros.RegisterPublisher<Int32Msg>("button_pressed");
-        ros.RegisterPublisher<BoolMsg>("reset_position");
 
-        // Demarrer reception UDP depuis Chai3D
         udpReceiver = new UdpClient(LISTEN_PORT);
         udpRunning = true;
         udpThread = new Thread(UDPReceiveThread);
@@ -49,6 +58,13 @@ public class stateButtonsChai3D : MonoBehaviour
         udpThread.Start();
 
         Debug.Log($"[UDP] En ecoute sur port {LISTEN_PORT}");
+
+        if (tool0 != null)
+        {
+            collider.transform.position = tool0.transform.position;
+            simpleStylus.transform.position = tool0.transform.position;
+        }
+
     }
 
     void OnDestroy()
@@ -76,7 +92,6 @@ public class stateButtonsChai3D : MonoBehaviour
                     float y = float.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture);
                     float z = float.Parse(parts[2], System.Globalization.CultureInfo.InvariantCulture);
                     int btn = int.Parse(parts[3]);
-
                     lock (dataLock)
                     {
                         receivedPos = new Vector3(x, y, z);
@@ -133,22 +148,48 @@ public class stateButtonsChai3D : MonoBehaviour
         if (!hasData) return;
 
         // Mapping Chai3D -> Unity
-        // Chai3D X=profondeur, Y=gauche/droite, Z=haut/bas
-        // Unity X=gauche/droite, Y=haut/bas, Z=profondeur
-        collider.transform.position = new Vector3(pos.y, pos.z, -pos.x);
-        simpleStylus.transform.position = new Vector3(pos.y, pos.z, -pos.x);
+        Vector3 chai3DPosUnity = new Vector3(pos.y, pos.z, -pos.x);
 
-        // Publier position sur ROS2
         if (btn == 1)
         {
+            zeroCount = 0;
+
+            if (isReleased)
+            {
+                // Premier appui apres relachement :
+                // Calcul de l'offset pour partir du TCP
+                offset = tool0.transform.position - chai3DPosUnity;
+                isReleased = false;
+                firstPress = false;
+            }
+
+            // Position avec offset pour partir du TCP
+            Vector3 targetPos = chai3DPosUnity + offset;
+            collider.transform.position = targetPos;
+            simpleStylus.transform.position = targetPos;
+
             button_pressed = 1;
             ros.Publish("button_pressed", new Int32Msg(1));
             PublishPosition();
         }
         else
         {
-            button_pressed = 0;
+            zeroCount++;
+            if (zeroCount >= ZERO_THRESHOLD)
+            {
+                isReleased = true;
+                offset = Vector3.zero;
+                zeroCount = ZERO_THRESHOLD;
+            }
+
+            if (isReleased && tool0 != null)
+            {
+                collider.transform.position = tool0.transform.position;
+                simpleStylus.transform.position = tool0.transform.position;
+            }
+
             ros.Publish("button_pressed", new Int32Msg(0));
+            button_pressed = 0;
         }
     }
 }

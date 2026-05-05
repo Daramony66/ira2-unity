@@ -5,9 +5,12 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/UR3e.unity
     guid: 50b32f0b03ec60d48be825e8adae19fb
+  - enabled: 1
+    path: Assets/3DSystems/HapticsDirect/FeaturesScenes/HapticMaterialBasic.unity
+    guid: 88efbdd57143efc408400b2d294551ee
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: a86da280efd2d6c489bd81ce2ff3b379, type: 2}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 058c47fb7942a004ca413bc4e3b83b1a, type: 2}
