@@ -14646,6 +14646,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   collider: {fileID: 627136646121617927}
   tool0: {fileID: 265290276}
+  otherCollider: {fileID: 7834677656891925408}
   hapticPlugin: {fileID: 627136644753356290}
 --- !u!4 &627136645572626785
 Transform:

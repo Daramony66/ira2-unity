@@ -15,6 +15,8 @@ public class HapticButtonReaderExpert : MonoBehaviour
 
     public GameObject tool0; //Ajouté le 20/03 à 14h24
 
+    public GameObject otherCollider; // le HapticCollider de l'autre bras (Learner)
+
     private int button_pressed;
     private float publishMessageFrequency = 0.008f;
     private float timeElapsed;
@@ -53,6 +55,17 @@ public class HapticButtonReaderExpert : MonoBehaviour
             if (hapticPlugin == null)
             {
                 Debug.LogError("HapticButtonReader : Aucun composant HapticPlugin trouvé. Veuillez assigner une référence dans l'inspecteur.");
+            }
+        }
+
+        // Empeche les deux HapticCollider superposes sur tool0 de se repousser mutuellement
+        if (collider != null && otherCollider != null)
+        {
+            Collider c1 = collider.GetComponent<Collider>();
+            Collider c2 = otherCollider.GetComponent<Collider>();
+            if (c1 != null && c2 != null)
+            {
+                Physics.IgnoreCollision(c1, c2, true);
             }
         }
     }
