@@ -25,11 +25,47 @@ public class HapticForceLearner : MonoBehaviour
     // Ajouté le 02/03 à 22h - variable pour le filtre passe-bas
     private Vector3 filteredForce = Vector3.zero;
 
+    private Vector3 prevCorr = Vector3.zero;
+
+    private Vector3 prevLearnerPos = Vector3.zero;
+    public float correctionDamping = 0.5f;  // amortissement (anti-oscillation)
+
+
+
+
     // Ajouté le 02/03 à 22h - facteur d'échelle de la force (à ajuster selon confort)
     public float scalingFactor = 0.025f;
 
+
+
+    // ----- Correction expert -> apprenant (Test 1 : ressort relatif permanent) -----
+    [Header("Couplage expert->apprenant")]
+    public GameObject expertCollider;   // le HapticCollider de l'expert (a glisser dans l'Inspector)
+    public GameObject learnerCollider;  // le HapticCollider de l'apprenant (a glisser dans l'Inspector)
+    public float correctionStiffness = 50f;  // raideur k du ressort (a regler)
+    public float correctionMaxForce = 1.0f;  // limite de force de correction (securite)
+
+    public HapticPlugin expertPlugin;  // HapticPlugin de l'expert (a glisser dans l'Inspector)
+
+
+    private Vector3 expertStart;
+    private Vector3 learnerStart;
+    private bool correctionAnchored = false;
+
+
+    private Vector3 filteredCorr = Vector3.zero;
+
+
+
     //Ajouté le 21/03 à 12h10
     private bool buttonPressed = false;
+
+
+
+    private bool expertButtonPressed = false;
+
+
+
     private float lastMessageTime = 0f;
     private float timeoutDuration = 0.5f; // 500ms sans message = force nulle
 
@@ -73,6 +109,31 @@ public class HapticForceLearner : MonoBehaviour
         ROSConnection.GetOrCreateInstance().Subscribe<WrenchStampedMsg>(forceTopicName, ReceiveForce);
 
         ROSConnection.GetOrCreateInstance().Subscribe<RosMessageTypes.Std.Int32Msg>("learner/button_pressed", ReceiveButton); //Ajouté le 21/03 à 12h10
+    
+
+
+        ROSConnection.GetOrCreateInstance().Subscribe<RosMessageTypes.Std.Int32Msg>("expert/button_pressed", ReceiveExpertButton);
+
+
+
+
+        // Ancrage initial du ressort de correction (Test 1)
+        // if (expertCollider != null && learnerCollider != null)
+        // {
+        //     expertStart = expertCollider.transform.position;
+        //     learnerStart = learnerCollider.transform.position;
+        //     correctionAnchored = true;
+        // }
+
+
+
+        if (expertPlugin != null && hapticPlugin != null)
+        {
+            expertStart = expertPlugin.CurrentPosition;
+            learnerStart = hapticPlugin.CurrentPosition;
+            correctionAnchored = true;
+        }
+    
     }
 
 
@@ -94,21 +155,135 @@ public class HapticForceLearner : MonoBehaviour
     }
 
     //Ajouté le 21/03 à 12h10 - forcer la force à zéro si aucun message reçu depuis un certain temps (timeout)
+    // void Update()
+    // {
+    //     if (hapticPlugin != null && hapticPlugin.DeviceHHD >= 0 && Time.time - lastMessageTime > timeoutDuration)
+    //     {
+    //         //Ajouté le 25/03 à 12h14
+    //         filteredForce = Vector3.zero;
+
+    //         //Commenté le 24/03 à 17h55 //Décommenté le 25/03 le 11h17
+    //         double[] zeroDir = new double[3] { 0, 0, 0 };
+    //         setConstantForceValues(hapticPlugin.DeviceIdentifier, zeroDir, 0.0);
+
+    //         //Ajouté le 24/03 à 17h55 //Commenté le 25/03 le 11h17
+    //         // double[] forceArray = new double[3] { 0, 0, 0 };
+    //         // double[] torqueArray = new double[3] { 0, 0, 0 };
+    //         // setForce(hapticPlugin.DeviceIdentifier, forceArray, torqueArray);
+    //     }
+    // }
+
+
+    // void Update()
+    // {
+    //     // ----- TEST 1 : ressort de correction relatif, en permanence (sans robot) -----
+    //     if (hapticPlugin != null && hapticPlugin.DeviceHHD >= 0 &&
+    //         correctionAnchored && expertCollider != null && learnerCollider != null)
+    //     {
+    //         // Deltas relatifs depuis l'ancrage initial
+    //         Vector3 deltaExpert  = expertCollider.transform.position  - expertStart;
+    //         Vector3 deltaLearner = learnerCollider.transform.position - learnerStart;
+
+    //         // Ressort : F = k * (delta_expert - delta_learner)
+    //         Vector3 corr = correctionStiffness * (deltaExpert - deltaLearner);
+
+    //         // Limite de force (securite)
+    //         if (corr.magnitude > correctionMaxForce)
+    //             corr = corr.normalized * correctionMaxForce;
+
+    //         // Application au bras apprenant
+    //         Vector3 dir = corr.normalized;
+    //         double mag = corr.magnitude;
+    //         double[] corrDir = new double[] { dir.x, dir.y, dir.z };
+    //         setConstantForceValues(hapticPlugin.DeviceIdentifier, corrDir, mag);
+    //     }
+    // }
+
+
     void Update()
     {
-        if (hapticPlugin != null && hapticPlugin.DeviceHHD >= 0 && Time.time - lastMessageTime > timeoutDuration)
+        // ----- TEST 1 : ressort de correction relatif, en permanence (sans robot) -----
+        //if (hapticPlugin != null && hapticPlugin.DeviceHHD >= 0 &&
+            //correctionAnchored && expertCollider != null && learnerCollider != null)
+
+        //if (hapticPlugin != null && hapticPlugin.DeviceHHD >= 0 &&
+            //correctionAnchored && expertPlugin != null)
+
+
+        if (hapticPlugin != null && hapticPlugin.DeviceHHD >= 0 &&
+            correctionAnchored && expertPlugin != null && expertButtonPressed)
         {
-            //Ajouté le 25/03 à 12h14
-            filteredForce = Vector3.zero;
+            // Deltas relatifs depuis l'ancrage initial
+            // Vector3 deltaExpert  = expertCollider.transform.position  - expertStart;
+            // Vector3 deltaLearner = learnerCollider.transform.position - learnerStart;
 
-            //Commenté le 24/03 à 17h55 //Décommenté le 25/03 le 11h17
-            double[] zeroDir = new double[3] { 0, 0, 0 };
-            setConstantForceValues(hapticPlugin.DeviceIdentifier, zeroDir, 0.0);
+            Vector3 deltaExpert  = expertPlugin.CurrentPosition - expertStart;
+            Vector3 deltaLearner = hapticPlugin.CurrentPosition - learnerStart;
 
-            //Ajouté le 24/03 à 17h55 //Commenté le 25/03 le 11h17
-            // double[] forceArray = new double[3] { 0, 0, 0 };
-            // double[] torqueArray = new double[3] { 0, 0, 0 };
-            // setForce(hapticPlugin.DeviceIdentifier, forceArray, torqueArray);
+
+
+            // Ressort : F = k * (delta_expert - delta_learner)
+            //Vector3 corr = correctionStiffness * (deltaExpert - deltaLearner);
+
+            //Debug.Log($"dE={deltaExpert.magnitude:F4} dL={deltaLearner.magnitude:F4} corr={corr.magnitude:F4}");
+
+
+
+            // Positions en mm -> on convertit en m (division par 1000)
+            //Vector3 corr = correctionStiffness * ((deltaExpert - deltaLearner) / 1000f);
+
+
+            // Positions en mm -> on convertit en m (division par 1000)
+            Vector3 corr = correctionStiffness * ((deltaExpert - deltaLearner) / 1000f);
+
+            // Amortissement : freine selon la vitesse de l'apprenant (anti-oscillation)
+            Vector3 learnerVel = (hapticPlugin.CurrentPosition - prevLearnerPos) / 1000f / Time.deltaTime;
+            corr -= correctionDamping * learnerVel;
+            prevLearnerPos = hapticPlugin.CurrentPosition;
+
+
+
+            // Filtre passe-bas sur la force de correction (absorbe les sauts)
+            // filteredCorr = 0.9f * filteredCorr + 0.1f * corr;
+            // corr = filteredCorr;
+
+
+            // Filtre passe-bas sur la force de correction (absorbe les sauts)
+            filteredCorr = 0.9f * filteredCorr + 0.1f * corr;
+
+            // Limite la variation de force entre deux frames (anti a-coups)
+            Vector3 deltaCorr = filteredCorr - prevCorr;
+            float maxStep = 0.05f;
+            if (deltaCorr.magnitude > maxStep)
+                filteredCorr = prevCorr + deltaCorr.normalized * maxStep;
+            prevCorr = filteredCorr;
+
+            corr = filteredCorr;
+
+
+
+            Debug.Log($"dE={deltaExpert.magnitude:F4} dL={deltaLearner.magnitude:F4} corr={corr.magnitude:F4}");
+
+
+
+
+            // Deadband : sous un seuil, force STRICTEMENT nulle (evite le bruit de direction)
+            if (corr.magnitude < 0.05f)
+            {
+                //double[] zeroDir = new double[3] { 0, 0, 0 };
+                //setConstantForceValues(hapticPlugin.DeviceIdentifier, zeroDir, 0.0);
+                return;
+            }
+
+            // Limite de force (securite)
+            if (corr.magnitude > correctionMaxForce)
+                corr = corr.normalized * correctionMaxForce;
+
+            // Application au bras apprenant
+            Vector3 dir = corr.normalized;
+            double mag = corr.magnitude;
+            double[] corrDir = new double[] { dir.x, dir.y, dir.z };
+            setConstantForceValues(hapticPlugin.DeviceIdentifier, corrDir, mag);
         }
     }
 
@@ -254,6 +429,32 @@ public class HapticForceLearner : MonoBehaviour
     private void ReceiveButton(RosMessageTypes.Std.Int32Msg msg)
     {
         buttonPressed = msg.data == 1;
+    }
+
+
+
+    private void ReceiveExpertButton(RosMessageTypes.Std.Int32Msg msg)
+    {
+        bool nowPressed = msg.data == 1;
+
+        // Front montant : ré-ancrage (pas de saut)
+        if (nowPressed && !expertButtonPressed && expertPlugin != null && hapticPlugin != null)
+        {
+            expertStart = expertPlugin.CurrentPosition;
+            learnerStart = hapticPlugin.CurrentPosition;
+            filteredCorr = Vector3.zero;
+            prevCorr = Vector3.zero;
+        }
+
+        // Front descendant : on coupe la force (sinon la derniere force reste active)
+        if (!nowPressed && expertButtonPressed && hapticPlugin != null)
+        {
+            filteredCorr = Vector3.zero;
+            prevCorr = Vector3.zero;
+            setConstantForceValues(hapticPlugin.DeviceIdentifier, new double[] { 1, 0, 0 }, 0.0);
+        }
+
+        expertButtonPressed = nowPressed;
     }
 
 }
