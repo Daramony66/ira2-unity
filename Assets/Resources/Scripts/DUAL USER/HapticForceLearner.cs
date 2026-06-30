@@ -40,8 +40,7 @@ public class HapticForceLearner : MonoBehaviour
 
     // ----- Correction expert -> apprenant (Test 1 : ressort relatif permanent) -----
     [Header("Couplage expert->apprenant")]
-    public GameObject expertCollider;   // le HapticCollider de l'expert (a glisser dans l'Inspector)
-    public GameObject learnerCollider;  // le HapticCollider de l'apprenant (a glisser dans l'Inspector)
+
     public float correctionStiffness = 50f;  // raideur k du ressort (a regler)
     public float correctionMaxForce = 1.0f;  // limite de force de correction (securite)
 
@@ -114,19 +113,6 @@ public class HapticForceLearner : MonoBehaviour
 
         ROSConnection.GetOrCreateInstance().Subscribe<RosMessageTypes.Std.Int32Msg>("expert/button_pressed", ReceiveExpertButton);
 
-
-
-
-        // Ancrage initial du ressort de correction (Test 1)
-        // if (expertCollider != null && learnerCollider != null)
-        // {
-        //     expertStart = expertCollider.transform.position;
-        //     learnerStart = learnerCollider.transform.position;
-        //     correctionAnchored = true;
-        // }
-
-
-
         if (expertPlugin != null && hapticPlugin != null)
         {
             expertStart = expertPlugin.CurrentPosition;
@@ -173,64 +159,17 @@ public class HapticForceLearner : MonoBehaviour
     //     }
     // }
 
-
-    // void Update()
-    // {
-    //     // ----- TEST 1 : ressort de correction relatif, en permanence (sans robot) -----
-    //     if (hapticPlugin != null && hapticPlugin.DeviceHHD >= 0 &&
-    //         correctionAnchored && expertCollider != null && learnerCollider != null)
-    //     {
-    //         // Deltas relatifs depuis l'ancrage initial
-    //         Vector3 deltaExpert  = expertCollider.transform.position  - expertStart;
-    //         Vector3 deltaLearner = learnerCollider.transform.position - learnerStart;
-
-    //         // Ressort : F = k * (delta_expert - delta_learner)
-    //         Vector3 corr = correctionStiffness * (deltaExpert - deltaLearner);
-
-    //         // Limite de force (securite)
-    //         if (corr.magnitude > correctionMaxForce)
-    //             corr = corr.normalized * correctionMaxForce;
-
-    //         // Application au bras apprenant
-    //         Vector3 dir = corr.normalized;
-    //         double mag = corr.magnitude;
-    //         double[] corrDir = new double[] { dir.x, dir.y, dir.z };
-    //         setConstantForceValues(hapticPlugin.DeviceIdentifier, corrDir, mag);
-    //     }
-    // }
-
-
     void Update()
     {
-        // ----- TEST 1 : ressort de correction relatif, en permanence (sans robot) -----
-        //if (hapticPlugin != null && hapticPlugin.DeviceHHD >= 0 &&
-            //correctionAnchored && expertCollider != null && learnerCollider != null)
-
-        //if (hapticPlugin != null && hapticPlugin.DeviceHHD >= 0 &&
-            //correctionAnchored && expertPlugin != null)
-
 
         if (hapticPlugin != null && hapticPlugin.DeviceHHD >= 0 &&
             correctionAnchored && expertPlugin != null && expertButtonPressed)
         {
             // Deltas relatifs depuis l'ancrage initial
-            // Vector3 deltaExpert  = expertCollider.transform.position  - expertStart;
-            // Vector3 deltaLearner = learnerCollider.transform.position - learnerStart;
 
             Vector3 deltaExpert  = expertPlugin.CurrentPosition - expertStart;
             Vector3 deltaLearner = hapticPlugin.CurrentPosition - learnerStart;
 
-
-
-            // Ressort : F = k * (delta_expert - delta_learner)
-            //Vector3 corr = correctionStiffness * (deltaExpert - deltaLearner);
-
-            //Debug.Log($"dE={deltaExpert.magnitude:F4} dL={deltaLearner.magnitude:F4} corr={corr.magnitude:F4}");
-
-
-
-            // Positions en mm -> on convertit en m (division par 1000)
-            //Vector3 corr = correctionStiffness * ((deltaExpert - deltaLearner) / 1000f);
 
 
             // Positions en mm -> on convertit en m (division par 1000)
@@ -241,11 +180,6 @@ public class HapticForceLearner : MonoBehaviour
             corr -= correctionDamping * learnerVel;
             prevLearnerPos = hapticPlugin.CurrentPosition;
 
-
-
-            // Filtre passe-bas sur la force de correction (absorbe les sauts)
-            // filteredCorr = 0.9f * filteredCorr + 0.1f * corr;
-            // corr = filteredCorr;
 
 
             // Filtre passe-bas sur la force de correction (absorbe les sauts)
@@ -262,7 +196,7 @@ public class HapticForceLearner : MonoBehaviour
 
 
 
-            Debug.Log($"dE={deltaExpert.magnitude:F4} dL={deltaLearner.magnitude:F4} corr={corr.magnitude:F4}");
+            // Debug.Log($"dE={deltaExpert.magnitude:F4} dL={deltaLearner.magnitude:F4} corr={corr.magnitude:F4}");
 
 
 
