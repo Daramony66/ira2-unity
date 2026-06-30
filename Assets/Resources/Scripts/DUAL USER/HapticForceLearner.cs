@@ -54,6 +54,9 @@ public class HapticForceLearner : MonoBehaviour
 
     private Vector3 filteredCorr = Vector3.zero;
 
+    private Vector3 robotForce = Vector3.zero;        // derniere force robot (stockee, appliquee dans Update)
+    private Vector3 correctionForce = Vector3.zero;   // derniere force de correction
+
 
 
     //Ajouté le 21/03 à 12h10
@@ -161,31 +164,27 @@ public class HapticForceLearner : MonoBehaviour
 
     void Update()
     {
+        // 1) Calcul de la force de correction (seulement si l'expert corrige)
+        correctionForce = Vector3.zero;
 
         if (hapticPlugin != null && hapticPlugin.DeviceHHD >= 0 &&
             correctionAnchored && expertPlugin != null && expertButtonPressed)
         {
-            // Deltas relatifs depuis l'ancrage initial
-
             Vector3 deltaExpert  = expertPlugin.CurrentPosition - expertStart;
             Vector3 deltaLearner = hapticPlugin.CurrentPosition - learnerStart;
 
-
-
-            // Positions en mm -> on convertit en m (division par 1000)
+            // Ressort relatif (mm -> m)
             Vector3 corr = correctionStiffness * ((deltaExpert - deltaLearner) / 1000f);
 
-            // Amortissement : freine selon la vitesse de l'apprenant (anti-oscillation)
+            // Amortissement (anti-oscillation)
             Vector3 learnerVel = (hapticPlugin.CurrentPosition - prevLearnerPos) / 1000f / Time.deltaTime;
             corr -= correctionDamping * learnerVel;
             prevLearnerPos = hapticPlugin.CurrentPosition;
 
-
-
-            // Filtre passe-bas sur la force de correction (absorbe les sauts)
+            // Filtre passe-bas
             filteredCorr = 0.9f * filteredCorr + 0.1f * corr;
 
-            // Limite la variation de force entre deux frames (anti a-coups)
+            // Slew-rate (anti a-coups)
             Vector3 deltaCorr = filteredCorr - prevCorr;
             float maxStep = 0.05f;
             if (deltaCorr.magnitude > maxStep)
@@ -194,30 +193,33 @@ public class HapticForceLearner : MonoBehaviour
 
             corr = filteredCorr;
 
-
-
-            // Debug.Log($"dE={deltaExpert.magnitude:F4} dL={deltaLearner.magnitude:F4} corr={corr.magnitude:F4}");
-
-
-
-
-            // Deadband : sous un seuil, force STRICTEMENT nulle (evite le bruit de direction)
+            // Deadband
             if (corr.magnitude < 0.05f)
-            {
-                //double[] zeroDir = new double[3] { 0, 0, 0 };
-                //setConstantForceValues(hapticPlugin.DeviceIdentifier, zeroDir, 0.0);
-                return;
-            }
+                corr = Vector3.zero;
 
-            // Limite de force (securite)
+            // Limite de securite
             if (corr.magnitude > correctionMaxForce)
                 corr = corr.normalized * correctionMaxForce;
 
-            // Application au bras apprenant
-            Vector3 dir = corr.normalized;
-            double mag = corr.magnitude;
-            double[] corrDir = new double[] { dir.x, dir.y, dir.z };
-            setConstantForceValues(hapticPlugin.DeviceIdentifier, corrDir, mag);
+            correctionForce = corr;
+        }
+
+        // 2) Fusion : force robot + force de correction
+        if (hapticPlugin != null && hapticPlugin.DeviceIdentifier != null)
+        {
+            Vector3 total = robotForce + correctionForce;
+
+            if (total.magnitude < 0.0001f)
+            {
+                // Rien a appliquer : on n'envoie pas de direction nulle (perturbe le device)
+                setConstantForceValues(hapticPlugin.DeviceIdentifier, new double[] { 1, 0, 0 }, 0.0);
+            }
+            else
+            {
+                Vector3 dir = total.normalized;
+                double mag = total.magnitude;
+                setConstantForceValues(hapticPlugin.DeviceIdentifier, new double[] { dir.x, dir.y, dir.z }, mag);
+            }
         }
     }
 
@@ -325,15 +327,26 @@ public class HapticForceLearner : MonoBehaviour
             //Ajouté le 21/03 à 12h10 - appliquer la force seulement si le bouton est pressé, sinon forcer à zéro
             // pour fonction SetConstantForceValues
             // //Commenté le 24/03 à 17h52 //Décommenté le 25/03 le 11h16
+
+            // if (buttonPressed)
+            // {
+            //     setConstantForceValues(hapticPlugin.DeviceIdentifier, ForceDir, ForceMag);
+            // }
+            // else
+            // {
+            //     double[] zeroDir = new double[3] { 0, 0, 0 };
+            //     setConstantForceValues(hapticPlugin.DeviceIdentifier, zeroDir, 0.0);
+            // }
+
+
+
+            // On ne fait plus l'appel ici : on stocke la force robot, l'application se fait dans Update (fusion)
             if (buttonPressed)
-            {
-                setConstantForceValues(hapticPlugin.DeviceIdentifier, ForceDir, ForceMag);
-            }
+                robotForce = force;
             else
-            {
-                double[] zeroDir = new double[3] { 0, 0, 0 };
-                setConstantForceValues(hapticPlugin.DeviceIdentifier, zeroDir, 0.0);
-            }
+                robotForce = Vector3.zero;
+
+
 
             // pour fonction SetForce
             //Ajouté le 24/03 à 17h54 //Commenté le 25/03 à 11h16 

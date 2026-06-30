@@ -20086,10 +20086,8 @@ MonoBehaviour:
   hapticPlugin: {fileID: 7834677658241314725}
   correctionDamping: 2
   scalingFactor: 0.025
-  expertCollider: {fileID: 627136646121617927}
-  learnerCollider: {fileID: 7834677656891925408}
   correctionStiffness: 10
-  correctionMaxForce: 1
+  correctionMaxForce: 0.3
   expertPlugin: {fileID: 627136644753356290}
   forceGraph: {fileID: 2124397703}
 --- !u!114 &7834677658241314727
