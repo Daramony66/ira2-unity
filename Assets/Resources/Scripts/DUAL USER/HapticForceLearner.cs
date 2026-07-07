@@ -167,6 +167,15 @@ public class HapticForceLearner : MonoBehaviour
         // 1) Calcul de la force de correction (seulement si l'expert corrige)
         correctionForce = Vector3.zero;
 
+        // >>> AJOUT : timeout de securite (coupe la force robot figee si plus de messages)
+        if (hapticPlugin != null && hapticPlugin.DeviceHHD >= 0 &&
+            Time.time - lastMessageTime > timeoutDuration)
+        {
+            filteredForce = Vector3.zero;
+            robotForce = Vector3.zero;
+        }
+        // <<< FIN AJOUT
+
         if (hapticPlugin != null && hapticPlugin.DeviceHHD >= 0 &&
             correctionAnchored && expertPlugin != null && expertButtonPressed)
         {
