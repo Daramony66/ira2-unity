@@ -6,7 +6,7 @@ using UnityEngine.Events;
 using Unity.Robotics.ROSTCPConnector.ROSGeometry;
 
 
-public class HapticForceExpert : MonoBehaviour
+public class HapticForceExpert_V2 : MonoBehaviour
 {
 
     [DllImport("HapticsDirect")] public static extern void setConstantForceValues(string configName, double[] direction, double magnitude);
@@ -17,6 +17,32 @@ public class HapticForceExpert : MonoBehaviour
     public HapticPlugin hapticPlugin;
 
     public HapticCalibration calibration;   // à glisser dans l'inspecteur //AJOUTÉ le 09/07 à 12h45
+
+
+    /// BLOC : AJOUT LE 09/07 à 16h15
+
+    // ----- Couplage bidirectionnel : expert suit apprenant -----
+    public HapticPlugin learnerPlugin;        // le HapticPlugin de l'apprenant (à glisser dans l'inspecteur)
+    private bool learnerButtonPressed = false;
+
+    public float followStiffness = 10f;       // raideur du ressort (expert tiré vers apprenant)
+    public float followDamping = 2f;          // amortissement
+    public float followMaxForce = 0.3f;       // plafond de sécurité
+
+    private Vector3 expertStart;              // ancre expert au moment où l'expert lâche
+    private Vector3 learnerStart;             // ancre apprenant à ce moment
+    private Vector3 prevExpertPos = Vector3.zero;
+    private Vector3 prevFollowCorr = Vector3.zero;
+    private Vector3 filteredFollowCorr = Vector3.zero;
+    private Vector3 robotForce = Vector3.zero;         // force robot stockée (pour fusion)
+    private Vector3 followForce = Vector3.zero;        // force de suivi
+
+    private bool followAnchorInit = false;
+
+    private float lastDebugTime = 0f;
+
+    /// FIN BLOC
+
 
     //private string forceTopicName = "/tcp_force";
     // Commenté le 02/03 à 22h - remplacé par /haptic_force (forces transformées tool0 → base par haptic_control.cpp)
@@ -45,9 +71,6 @@ public class HapticForceExpert : MonoBehaviour
     //Ajouté le 31/03 à 17h00
     private System.IO.StreamWriter _csvWriter;
     //private float _csvStartTime = 0f; //Commenté le 01/04 à 10h15 - on utilise maintenant le timestamp ROS pour l'axe temporel du log
-
-    private float lastDebugTime = 0f;
-    public HapticPlugin learnerPlugin; 
 
 
     void Start()
@@ -79,6 +102,7 @@ public class HapticForceExpert : MonoBehaviour
         ROSConnection.GetOrCreateInstance().Subscribe<WrenchStampedMsg>(forceTopicName, ReceiveForce);
 
         ROSConnection.GetOrCreateInstance().Subscribe<RosMessageTypes.Std.Int32Msg>("expert/button_pressed", ReceiveButton); //Ajouté le 21/03 à 12h10
+        ROSConnection.GetOrCreateInstance().Subscribe<RosMessageTypes.Std.Int32Msg>("learner/button_pressed", ReceiveLearnerButton);   // <-- AJOUT couplage bidirectionnel
     }
 
 
@@ -102,30 +126,89 @@ public class HapticForceExpert : MonoBehaviour
     //Ajouté le 21/03 à 12h10 - forcer la force à zéro si aucun message reçu depuis un certain temps (timeout)
     void Update()
     {
+        if (calibration != null && !calibration.teleopActive) return;
 
+        // Premier passage en téléop : on ancre pour éviter un saut du ressort de suivi
+        if (!followAnchorInit && learnerPlugin != null && hapticPlugin != null)
+        {
+            expertStart  = hapticPlugin.CurrentPosition;
+            learnerStart = learnerPlugin.CurrentPosition;
+            prevExpertPos = hapticPlugin.CurrentPosition;
+            followAnchorInit = true;
+        }
+
+        // DEBUG : afficher l'écart entre les deux bras pendant la téléop (limité à 2x/sec)
         if (learnerPlugin != null && hapticPlugin != null &&
             Time.time - lastDebugTime > 0.5f)
         {
             float ecart = Vector3.Distance(hapticPlugin.CurrentPosition, learnerPlugin.CurrentPosition);
-            Debug.Log($"[Suivi] Expert:{hapticPlugin.CurrentPosition.ToString("F1")} Learner:{learnerPlugin.CurrentPosition.ToString("F1")} ecart={ecart:F1}mm");
+            Debug.Log($"[Suivi] Expert:{hapticPlugin.CurrentPosition.ToString("F1")} Learner:{learnerPlugin.CurrentPosition.ToString("F1")} ecart={ecart:F1}mm buttonExpert={buttonPressed}");
             lastDebugTime = Time.time;
         }
 
-        if (calibration != null && !calibration.teleopActive) return; //Ajouté le 09/07 à 12h45 - ne pas appliquer de force si la calibration n'est pas terminée
-
-        if (hapticPlugin != null && hapticPlugin.DeviceHHD >= 0 && Time.time - lastMessageTime > timeoutDuration)
+        // Timeout de securite : si plus de messages force, on coupe la force robot stockee
+        if (hapticPlugin != null && hapticPlugin.DeviceHHD >= 0 &&
+            Time.time - lastMessageTime > timeoutDuration)
         {
-            //Ajouté le 25/03 à 12h14
             filteredForce = Vector3.zero;
+            robotForce = Vector3.zero;
+        }
 
-            //Commenté le 24/03 à 17h55 //Décommenté le 25/03 le 11h17
-            double[] zeroDir = new double[3] { 0, 0, 0 };
-            setConstantForceValues(hapticPlugin.DeviceIdentifier, zeroDir, 0.0);
+        // 1) Force de suivi : l'expert suit l'apprenant SEULEMENT quand l'expert ne tient pas son bouton
+        followForce = Vector3.zero;
 
-            //Ajouté le 24/03 à 17h55 //Commenté le 25/03 le 11h17
-            // double[] forceArray = new double[3] { 0, 0, 0 };
-            // double[] torqueArray = new double[3] { 0, 0, 0 };
-            // setForce(hapticPlugin.DeviceIdentifier, forceArray, torqueArray);
+        if (hapticPlugin != null && hapticPlugin.DeviceHHD >= 0 &&
+            learnerPlugin != null && !buttonPressed)
+        {
+            Vector3 deltaExpert  = hapticPlugin.CurrentPosition - expertStart;
+            Vector3 deltaLearner = learnerPlugin.CurrentPosition - learnerStart;
+
+            // Ressort : tire l'expert vers l'apprenant (mm -> m)
+            Vector3 corr = followStiffness * ((deltaLearner - deltaExpert) / 1000f);
+
+            // Amortissement
+            Vector3 expertVel = (hapticPlugin.CurrentPosition - prevExpertPos) / 1000f / Time.deltaTime;
+            corr -= followDamping * expertVel;
+            prevExpertPos = hapticPlugin.CurrentPosition;
+
+            // Filtre passe-bas
+            filteredFollowCorr = 0.9f * filteredFollowCorr + 0.1f * corr;
+
+            // Slew-rate
+            Vector3 deltaCorr = filteredFollowCorr - prevFollowCorr;
+            float maxStep = 0.05f;
+            if (deltaCorr.magnitude > maxStep)
+                filteredFollowCorr = prevFollowCorr + deltaCorr.normalized * maxStep;
+            prevFollowCorr = filteredFollowCorr;
+
+            corr = filteredFollowCorr;
+
+            // Deadband
+            if (corr.magnitude < 0.05f)
+                corr = Vector3.zero;
+
+            // Limite de securite
+            if (corr.magnitude > followMaxForce)
+                corr = corr.normalized * followMaxForce;
+
+            followForce = corr;
+        }
+
+        // 2) Fusion : force robot + force de suivi
+        if (hapticPlugin != null && hapticPlugin.DeviceIdentifier != null)
+        {
+            Vector3 total = robotForce + followForce;
+
+            if (total.magnitude < 0.0001f)
+            {
+                setConstantForceValues(hapticPlugin.DeviceIdentifier, new double[] { 1, 0, 0 }, 0.0);
+            }
+            else
+            {
+                Vector3 dir = total.normalized;
+                double mag = total.magnitude;
+                setConstantForceValues(hapticPlugin.DeviceIdentifier, new double[] { dir.x, dir.y, dir.z }, mag);
+            }
         }
     }
 
@@ -238,15 +321,14 @@ public class HapticForceExpert : MonoBehaviour
             //Ajouté le 21/03 à 12h10 - appliquer la force seulement si le bouton est pressé, sinon forcer à zéro
             // pour fonction SetConstantForceValues
             // //Commenté le 24/03 à 17h52 //Décommenté le 25/03 le 11h16
+
+            // BLOC AJOUTE LE 09/07 à 16h20
+            // On ne fait plus l'appel ici : on stocke la force robot, l'application se fait dans Update (fusion)
             if (buttonPressed)
-            {
-                setConstantForceValues(hapticPlugin.DeviceIdentifier, ForceDir, ForceMag);
-            }
+                robotForce = force;
             else
-            {
-                double[] zeroDir = new double[3] { 0, 0, 0 };
-                setConstantForceValues(hapticPlugin.DeviceIdentifier, zeroDir, 0.0);
-            }
+                robotForce = Vector3.zero;
+            // FIN BLOC
 
             // pour fonction SetForce
             //Ajouté le 24/03 à 17h54 //Commenté le 25/03 à 11h16 
@@ -275,8 +357,30 @@ public class HapticForceExpert : MonoBehaviour
     //Ajouté le 21/03 à 12h10
     private void ReceiveButton(RosMessageTypes.Std.Int32Msg msg)
     {
-        buttonPressed = msg.data == 1;
+
+        // BLOC AJOUTE LE 09/07 à 16h15
+        bool nowPressed = msg.data == 1;
+
+        // Front descendant (l'expert lâche) : on ancre pour que l'expert suive l'apprenant sans saut
+        if (!nowPressed && buttonPressed && learnerPlugin != null && hapticPlugin != null)
+        {
+            expertStart  = hapticPlugin.CurrentPosition;
+            learnerStart = learnerPlugin.CurrentPosition;
+            filteredFollowCorr = Vector3.zero;
+            prevFollowCorr = Vector3.zero;
+        }
+        // FIN BLOC
+
+        buttonPressed = nowPressed;
         Debug.Log($"[ForceExpert] buttonPressed = {buttonPressed}");
     }
+
+    // BLOC 09/07 à 16h15
+    // Reçoit l'état du bouton de l'apprenant (pour le couplage expert suit apprenant)
+    private void ReceiveLearnerButton(RosMessageTypes.Std.Int32Msg msg)
+    {
+        learnerButtonPressed = msg.data == 1;
+    }
+    // FIN BLOC
 
 }
