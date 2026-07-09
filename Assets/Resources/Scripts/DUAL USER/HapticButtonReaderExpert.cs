@@ -27,6 +27,8 @@ public class HapticButtonReaderExpert : MonoBehaviour
 
     public HapticPlugin hapticPlugin;
 
+    public HapticCalibration calibration;   // à glisser dans l'inspecteur //Ajouté le 09/07 à 12h45
+
     private int[] buttons = new int[4] { 0, 0, 0, 0 }; // État actuel des boutons
     private int[] lastButtons = new int[4] { 0, 0, 0, 0 }; // État précédent des boutons
     private int inkwell = 0; // État du commutateur inkwell
@@ -130,6 +132,8 @@ public class HapticButtonReaderExpert : MonoBehaviour
 
     private void UpdateButtonStatus()
     {
+        if (calibration != null && !calibration.teleopActive) return; //Ajouté le 09/07 à 12h45 - ne pas publier la position si la calibration n'est pas terminée
+
         // Sauvegarder l'état précédent des boutons
         for (int i = 0; i < 4; i++)
         {

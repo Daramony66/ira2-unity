@@ -11915,60 +11915,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 24eb610132a6050478f4300a73ecf5da, type: 3}
   m_PrefabInstance: {fileID: 2000017108}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1764944918
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1764944920}
-  - component: {fileID: 1764944919}
-  m_Layer: 0
-  m_Name: CalibrationManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1764944919
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1764944918}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c48da82d7c2c96d4e821eeb3df8e9a19, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  expertPlugin: {fileID: 627136644753356290}
-  learnerPlugin: {fileID: 7834677658241314725}
-  targetPoint: {x: 0, y: 0, z: 0}
-  calibStiffness: 30
-  calibDamping: 1
-  calibMaxForce: 1
-  distanceThreshold: 5
-  teleopActive: 0
-  expertZero: {x: 0, y: 0, z: 0}
-  learnerZero: {x: 0, y: 0, z: 0}
---- !u!4 &1764944920
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1764944918}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4.3871717, y: -22.82981, z: 27.04709}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &1765468644 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: cffe2b602df57374e950d786643e9d34, type: 3}
@@ -14684,7 +14630,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hapticPlugin: {fileID: 627136644753356290}
-  calibration: {fileID: 1764944919}
   scalingFactor: 0.025
   forceGraph: {fileID: 2124397703}
 --- !u!114 &627136644753356295
@@ -14703,7 +14648,6 @@ MonoBehaviour:
   tool0: {fileID: 265290276}
   otherCollider: {fileID: 7834677656891925408}
   hapticPlugin: {fileID: 627136644753356290}
-  calibration: {fileID: 1764944919}
 --- !u!4 &627136645572626785
 Transform:
   m_ObjectHideFlags: 0
@@ -20140,7 +20084,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hapticPlugin: {fileID: 7834677658241314725}
-  calibration: {fileID: 1764944919}
   correctionDamping: 2
   scalingFactor: 0.025
   correctionStiffness: 10
@@ -20162,7 +20105,6 @@ MonoBehaviour:
   collider: {fileID: 7834677656891925408}
   tool0: {fileID: 265290276}
   hapticPlugin: {fileID: 7834677658241314725}
-  calibration: {fileID: 1764944919}
 --- !u!4 &7912440031343710819
 Transform:
   m_ObjectHideFlags: 0
@@ -21220,4 +21162,3 @@ SceneRoots:
   - {fileID: 938063954}
   - {fileID: 17287001}
   - {fileID: 2124397704}
-  - {fileID: 1764944920}

@@ -15,6 +15,9 @@ public class HapticForceExpert : MonoBehaviour
 
 
     public HapticPlugin hapticPlugin;
+
+    public HapticCalibration calibration;   // à glisser dans l'inspecteur //AJOUTÉ le 09/07 à 12h45
+
     //private string forceTopicName = "/tcp_force";
     // Commenté le 02/03 à 22h - remplacé par /haptic_force (forces transformées tool0 → base par haptic_control.cpp)
     //private string forceTopicName = "/force_torque_sensor_broadcaster/wrench";
@@ -96,6 +99,9 @@ public class HapticForceExpert : MonoBehaviour
     //Ajouté le 21/03 à 12h10 - forcer la force à zéro si aucun message reçu depuis un certain temps (timeout)
     void Update()
     {
+
+        if (calibration != null && !calibration.teleopActive) return; //Ajouté le 09/07 à 12h45 - ne pas appliquer de force si la calibration n'est pas terminée
+
         if (hapticPlugin != null && hapticPlugin.DeviceHHD >= 0 && Time.time - lastMessageTime > timeoutDuration)
         {
             //Ajouté le 25/03 à 12h14
@@ -115,6 +121,9 @@ public class HapticForceExpert : MonoBehaviour
 
     private void ReceiveForce(WrenchStampedMsg forceMsg)
     {
+
+        if (calibration != null && !calibration.teleopActive) return; //Ajouté le 09/07 à 12h45 - ne pas appliquer de force si la calibration n'est pas terminée
+
         //Ajouté le 26/03 à 10h48 - calcul de la fréquence de réception des messages de force
         receiveForceCount++;
         float now = Time.realtimeSinceStartup;
