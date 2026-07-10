@@ -332,11 +332,13 @@ public class HapticForceExpert_V2 : MonoBehaviour
 
             // BLOC AJOUTE LE 09/07 à 16h20
             // On ne fait plus l'appel ici : on stocke la force robot, l'application se fait dans Update (fusion)
-            if (buttonPressed)
-                robotForce = force;
-            else
-                robotForce = Vector3.zero;
+            //if (buttonPressed)
+            //    robotForce = force;
+            //else
+            //    robotForce = Vector3.zero;
             // FIN BLOC
+
+            robotForce = force;   // on applique la force robot tout le temps (le suiveur sent aussi le contact) //Ajouté le 10/07
 
             // pour fonction SetForce
             //Ajouté le 24/03 à 17h54 //Commenté le 25/03 à 11h16 
