@@ -72,6 +72,7 @@ public class HapticForceExpert_V2 : MonoBehaviour
     private System.IO.StreamWriter _csvWriter;
     //private float _csvStartTime = 0f; //Commenté le 01/04 à 10h15 - on utilise maintenant le timestamp ROS pour l'axe temporel du log
 
+    public float gravityComp = 0.15f;   // force constante vers le haut (compense le poids du bras) //Ajouté le 10/07
 
     void Start()
     {
@@ -160,11 +161,17 @@ public class HapticForceExpert_V2 : MonoBehaviour
         if (hapticPlugin != null && hapticPlugin.DeviceHHD >= 0 &&
             learnerPlugin != null && !buttonPressed)
         {
-            Vector3 deltaExpert  = hapticPlugin.CurrentPosition - expertStart;
-            Vector3 deltaLearner = learnerPlugin.CurrentPosition - learnerStart;
+            //Vector3 deltaExpert  = hapticPlugin.CurrentPosition - expertStart;
+            //Vector3 deltaLearner = learnerPlugin.CurrentPosition - learnerStart;
 
             // Ressort : tire l'expert vers l'apprenant (mm -> m)
-            Vector3 corr = followStiffness * ((deltaLearner - deltaExpert) / 1000f);
+            //Vector3 corr = followStiffness * ((deltaLearner - deltaExpert) / 1000f);
+
+            // Écart direct entre les deux bras (mm -> m)
+            Vector3 erreur = (learnerPlugin.CurrentPosition - hapticPlugin.CurrentPosition) / 1000f;
+
+            // Ressort
+            Vector3 corr = followStiffness * erreur;
 
             // Amortissement
             Vector3 expertVel = (hapticPlugin.CurrentPosition - prevExpertPos) / 1000f / Time.deltaTime;
@@ -197,7 +204,8 @@ public class HapticForceExpert_V2 : MonoBehaviour
         // 2) Fusion : force robot + force de suivi
         if (hapticPlugin != null && hapticPlugin.DeviceIdentifier != null)
         {
-            Vector3 total = robotForce + followForce;
+            //Vector3 total = robotForce + followForce;
+            Vector3 total = robotForce + followForce + new Vector3(0f, gravityComp, 0f);
 
             if (total.magnitude < 0.0001f)
             {
