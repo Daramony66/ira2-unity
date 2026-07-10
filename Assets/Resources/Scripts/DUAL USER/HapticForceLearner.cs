@@ -242,7 +242,7 @@ public class HapticForceLearner : MonoBehaviour
     private void ReceiveForce(WrenchStampedMsg forceMsg)
     {
 
-        if (calibration != null && !calibration.teleopActive) return;
+        if (calibration != null && !calibration.teleopActive) return; //Ajouté le 09/07 à 12h45 - ne pas appliquer de force si la calibration n'est pas terminée
 
         //Ajouté le 26/03 à 10h48 - calcul de la fréquence de réception des messages de force
         receiveForceCount++;

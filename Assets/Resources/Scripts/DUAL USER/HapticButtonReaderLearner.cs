@@ -25,7 +25,7 @@ public class HapticButtonReaderLearner : MonoBehaviour
 
     public HapticPlugin hapticPlugin;
 
-    public HapticCalibration calibration;   // à glisser dans l'inspecteur
+    public HapticCalibration calibration;   // à glisser dans l'inspecteur // Ajouté le 09/07 à 12h45
 
     private int[] buttons = new int[4] { 0, 0, 0, 0 }; // État actuel des boutons
     private int[] lastButtons = new int[4] { 0, 0, 0, 0 }; // État précédent des boutons

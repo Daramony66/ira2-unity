@@ -34,6 +34,8 @@ public class HapticCalibration : MonoBehaviour
 
 
     private float startDelay = 1.0f; //Ajouté le 09/07 à 15h00
+    private float lastLogTime = 0f;
+
 
     //Ajouté le 09/07 à 15h00
 
@@ -65,6 +67,12 @@ public class HapticCalibration : MonoBehaviour
 
         float ecart = Vector3.Distance(expertPlugin.CurrentPosition, learnerPlugin.CurrentPosition);
         bool brasAlignes = ecart < distanceThreshold;
+
+        if (Time.time - lastLogTime > 0.5f)
+        {
+            Debug.Log($"[CALIB] Expert:{expertPlugin.CurrentPosition.ToString("F1")} | Learner:{learnerPlugin.CurrentPosition.ToString("F1")} | ecart={ecart:F1}mm");
+            lastLogTime = Time.time;
+        }
 
         // 3) Validation : Espace + les deux prêts
         if (Input.GetKeyDown(KeyCode.Space))

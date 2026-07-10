@@ -14632,6 +14632,7 @@ MonoBehaviour:
   hapticPlugin: {fileID: 627136644753356290}
   scalingFactor: 0.025
   forceGraph: {fileID: 2124397703}
+  learnerPlugin: {fileID: 7834677658241314725}
 --- !u!114 &627136644753356295
 MonoBehaviour:
   m_ObjectHideFlags: 0
