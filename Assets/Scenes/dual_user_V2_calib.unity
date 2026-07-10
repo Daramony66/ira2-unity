@@ -14726,6 +14726,7 @@ MonoBehaviour:
   followMaxForce: 0.3
   scalingFactor: 0.025
   forceGraph: {fileID: 2124397703}
+  gravityComp: 0.15
 --- !u!4 &627136645572626785
 Transform:
   m_ObjectHideFlags: 0
@@ -20021,6 +20022,7 @@ GameObject:
   - component: {fileID: 7834677658241314725}
   - component: {fileID: 7834677658241314727}
   - component: {fileID: 7834677658241314726}
+  - component: {fileID: 7834677658241314728}
   m_Layer: 0
   m_Name: HapticActor_Learner
   m_TagString: Untagged
@@ -20156,7 +20158,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7834677658241314724}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 24d8802d5b339934d99e20dc3e618838, type: 3}
   m_Name: 
@@ -20185,6 +20187,27 @@ MonoBehaviour:
   tool0: {fileID: 265290276}
   hapticPlugin: {fileID: 7834677658241314725}
   calibration: {fileID: 1764944919}
+--- !u!114 &7834677658241314728
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7834677658241314724}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9acc903ea2c27f14eb8e9af87f5650ee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hapticPlugin: {fileID: 7834677658241314725}
+  calibration: {fileID: 1764944919}
+  correctionDamping: 2
+  scalingFactor: 0.025
+  correctionStiffness: 10
+  correctionMaxForce: 0.3
+  expertPlugin: {fileID: 627136644753356290}
+  forceGraph: {fileID: 2124397703}
+  gravityComp: 0.15
 --- !u!4 &7912440031343710819
 Transform:
   m_ObjectHideFlags: 0
