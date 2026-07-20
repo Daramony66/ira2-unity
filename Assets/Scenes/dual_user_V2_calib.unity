@@ -11946,7 +11946,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   expertPlugin: {fileID: 627136644753356290}
   learnerPlugin: {fileID: 7834677658241314725}
-  targetPoint: {x: 0, y: 0, z: 0}
+  targetPoint: {x: 0, y: -50, z: -65}
   calibStiffness: 30
   calibDamping: 1
   calibMaxForce: 1

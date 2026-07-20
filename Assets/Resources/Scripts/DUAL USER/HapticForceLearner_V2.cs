@@ -31,7 +31,7 @@ public class HapticForceLearner_V2 : MonoBehaviour
     private Vector3 prevCorr = Vector3.zero;
 
     private Vector3 prevLearnerPos = Vector3.zero;
-    public float correctionDamping = 0.5f;  // amortissement (anti-oscillation)
+    public float correctionDamping = 2f;  // amortissement (anti-oscillation)
 
 
 
@@ -44,8 +44,8 @@ public class HapticForceLearner_V2 : MonoBehaviour
     // ----- Correction expert -> apprenant (Test 1 : ressort relatif permanent) -----
     [Header("Couplage expert->apprenant")]
 
-    public float correctionStiffness = 50f;  // raideur k du ressort (a regler)
-    public float correctionMaxForce = 1.0f;  // limite de force de correction (securite)
+    public float correctionStiffness = 10f;  // raideur k du ressort (a regler)
+    public float correctionMaxForce = 0.3f;  // limite de force de correction (securite)
 
     public HapticPlugin expertPlugin;  // HapticPlugin de l'expert (a glisser dans l'Inspector)
 

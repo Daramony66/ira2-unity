@@ -143,7 +143,7 @@ public class HapticForceExpert_V2 : MonoBehaviour
             Time.time - lastDebugTime > 0.5f)
         {
             float ecart = Vector3.Distance(hapticPlugin.CurrentPosition, learnerPlugin.CurrentPosition);
-            Debug.Log($"[Suivi] Expert:{hapticPlugin.CurrentPosition.ToString("F1")} Learner:{learnerPlugin.CurrentPosition.ToString("F1")} ecart={ecart:F1}mm buttonExpert={buttonPressed}");
+            //Debug.Log($"[Suivi] Expert:{hapticPlugin.CurrentPosition.ToString("F1")} Learner:{learnerPlugin.CurrentPosition.ToString("F1")} ecart={ecart:F1}mm buttonExpert={buttonPressed}");
             lastDebugTime = Time.time;
         }
 
@@ -324,7 +324,7 @@ public class HapticForceExpert_V2 : MonoBehaviour
 
             }
 
-            Debug.Log($"[ForceExpert] MaxForce={MaxForce} ForceMag={ForceMag}");
+            //Debug.Log($"[ForceExpert] MaxForce={MaxForce} ForceMag={ForceMag}");
 
             //Ajouté le 21/03 à 12h10 - appliquer la force seulement si le bouton est pressé, sinon forcer à zéro
             // pour fonction SetConstantForceValues
@@ -382,7 +382,7 @@ public class HapticForceExpert_V2 : MonoBehaviour
         // FIN BLOC
 
         buttonPressed = nowPressed;
-        Debug.Log($"[ForceExpert] buttonPressed = {buttonPressed}");
+        //Debug.Log($"[ForceExpert] buttonPressed = {buttonPressed}");
     }
 
     // BLOC 09/07 à 16h15

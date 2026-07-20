@@ -6,7 +6,7 @@ public class URJointSubscriber : MonoBehaviour
 {
     public ArticulationBody[] jointArticulationBodies;
     ROSConnection ros;
-
+    private bool firstReceived = false;
     void Start()
     {
         ros = ROSConnection.GetOrCreateInstance();
@@ -15,6 +15,8 @@ public class URJointSubscriber : MonoBehaviour
 
     void OnJointStatesReceived(JointStateMsg msg)
     {
+        if (!firstReceived) { firstReceived = true; Debug.Log($"[JOINTS] premier message a t={Time.timeSinceLevelLoad:F2}s"); }
+
         for (int i = 0; i < msg.position.Length && i < jointArticulationBodies.Length; ++i)
         {
             var joint = jointArticulationBodies[i];
