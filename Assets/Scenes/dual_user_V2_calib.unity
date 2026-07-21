@@ -5228,7 +5228,7 @@ MonoBehaviour:
   m_ShowHUD: 1
   m_TFTopics:
   - /tf
-  listenForTFMessages: 1
+  listenForTFMessages: 0
 --- !u!4 &570016715
 Transform:
   m_ObjectHideFlags: 0
@@ -14650,6 +14650,7 @@ GameObject:
   - component: {fileID: 627136644753356295}
   - component: {fileID: 627136644753356294}
   - component: {fileID: 627136644753356296}
+  - component: {fileID: 627136644753356297}
   m_Layer: 0
   m_Name: HapticActor_Expert
   m_TagString: Untagged
@@ -14713,7 +14714,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 627136644753356291}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8dee6c9d79277c34abf71c2369c3a609, type: 3}
   m_Name: 
@@ -14724,6 +14725,30 @@ MonoBehaviour:
   followStiffness: 10
   followDamping: 2
   followMaxForce: 0.3
+  scalingFactor: 0.025
+  forceGraph: {fileID: 2124397703}
+  gravityComp: 0.15
+--- !u!114 &627136644753356297
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 627136644753356291}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5a356db2cf3b0b4cabfe57e2c05ab21, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hapticPlugin: {fileID: 627136644753356290}
+  calibration: {fileID: 1764944919}
+  learnerPlugin: {fileID: 7834677658241314725}
+  followStiffness: 10
+  followDamping: 2
+  followMaxForce: 0.3
+  mutualStiffness: 5
+  mutualDamping: 2
+  mutualMaxForce: 0.2
   scalingFactor: 0.025
   forceGraph: {fileID: 2124397703}
   gravityComp: 0.15
@@ -20023,6 +20048,7 @@ GameObject:
   - component: {fileID: 7834677658241314727}
   - component: {fileID: 7834677658241314726}
   - component: {fileID: 7834677658241314728}
+  - component: {fileID: 7834677658241314729}
   m_Layer: 0
   m_Name: HapticActor_Learner
   m_TagString: Untagged
@@ -20194,7 +20220,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7834677658241314724}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9acc903ea2c27f14eb8e9af87f5650ee, type: 3}
   m_Name: 
@@ -20205,6 +20231,30 @@ MonoBehaviour:
   scalingFactor: 0.025
   correctionStiffness: 10
   correctionMaxForce: 0.3
+  expertPlugin: {fileID: 627136644753356290}
+  forceGraph: {fileID: 2124397703}
+  gravityComp: 0.15
+--- !u!114 &7834677658241314729
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7834677658241314724}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 979ee8e156279a8409b0fab24a3d3751, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hapticPlugin: {fileID: 7834677658241314725}
+  calibration: {fileID: 1764944919}
+  correctionDamping: 2
+  scalingFactor: 0.025
+  correctionStiffness: 10
+  correctionMaxForce: 0.3
+  mutualStiffness: 5
+  mutualDamping: 2
+  mutualMaxForce: 0.2
   expertPlugin: {fileID: 627136644753356290}
   forceGraph: {fileID: 2124397703}
   gravityComp: 0.15
