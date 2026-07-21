@@ -9,6 +9,7 @@ public class URJointSubscriber : MonoBehaviour
     private bool firstReceived = false;
     void Start()
     {
+        //Debug.Log($"[JOINTS] Start() a t={Time.timeSinceLevelLoad:F2}s"); //Ajouté le 21/07
         ros = ROSConnection.GetOrCreateInstance();
         ros.Subscribe<JointStateMsg>("joint_states", OnJointStatesReceived);
     }
