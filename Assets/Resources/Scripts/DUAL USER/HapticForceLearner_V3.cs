@@ -237,6 +237,10 @@ public class HapticForceLearner_V3 : MonoBehaviour
                 corr = corr.normalized * fmax; //Ajouté le 21/07
 
             correctionForce = corr;
+            
+            //Ajouté le 21/07 - log de l'écart et de la force de correction
+            //if (Time.frameCount % 30 == 0)
+                //Debug.Log($"[Learner] mutuel={mutuel} ecart={(erreur.magnitude*1000f):F1}mm corr={corr.magnitude:F3}N");
         }
 
         // 2) Fusion : force robot + force de correction
@@ -271,7 +275,7 @@ public class HapticForceLearner_V3 : MonoBehaviour
         float now = Time.realtimeSinceStartup;
         if (now - receiveForceLastTime >= 1f)
         {
-            Debug.Log($"ReceiveForce fréquence : {receiveForceCount} Hz");
+            //Debug.Log($"ReceiveForce fréquence : {receiveForceCount} Hz");
             receiveForceCount = 0;
             receiveForceLastTime = now;
         }

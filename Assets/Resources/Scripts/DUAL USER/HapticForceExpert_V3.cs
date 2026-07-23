@@ -253,7 +253,7 @@ public class HapticForceExpert_V3 : MonoBehaviour
         float now = Time.realtimeSinceStartup;
         if (now - receiveForceLastTime >= 1f)
         {
-            Debug.Log($"ReceiveForce fréquence : {receiveForceCount} Hz");
+            //Debug.Log($"ReceiveForce fréquence : {receiveForceCount} Hz");
             receiveForceCount = 0;
             receiveForceLastTime = now;
         }
