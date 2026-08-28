@@ -21,7 +21,7 @@ public class stateButtonsChai3D : MonoBehaviour
     public GameObject tool0;
     public GameObject simpleStylus;
 
-    private int button_pressed;
+    // private int button_pressed; //commenté le 28/08
     private int zeroCount = 0;
     private const int ZERO_THRESHOLD = 10;
 
@@ -30,7 +30,7 @@ public class stateButtonsChai3D : MonoBehaviour
 
     // Offset entre position Chai3D et TCP au moment de l'appui
     private Vector3 offset = Vector3.zero;
-    private bool firstPress = true;
+    //private bool firstPress = true; //commenté le 28/08
     private Vector3 lastChai3DPos = Vector3.zero;
 
     // UDP - reception depuis Chai3D
@@ -160,7 +160,7 @@ public class stateButtonsChai3D : MonoBehaviour
                 // Calcul de l'offset pour partir du TCP
                 offset = tool0.transform.position - chai3DPosUnity;
                 isReleased = false;
-                firstPress = false;
+                //firstPress = false;
             }
 
             // Position avec offset pour partir du TCP
@@ -168,7 +168,7 @@ public class stateButtonsChai3D : MonoBehaviour
             collider.transform.position = targetPos;
             simpleStylus.transform.position = targetPos;
 
-            button_pressed = 1;
+            // button_pressed = 1;
             ros.Publish("button_pressed", new Int32Msg(1));
             PublishPosition();
         }
@@ -189,7 +189,7 @@ public class stateButtonsChai3D : MonoBehaviour
             }
 
             ros.Publish("button_pressed", new Int32Msg(0));
-            button_pressed = 0;
+            //button_pressed = 0;
         }
     }
 }

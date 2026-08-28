@@ -227,7 +227,7 @@ public class HapticForceLearner_V3 : MonoBehaviour
             corr = filteredCorr;
 
             // Deadband
-            if (corr.magnitude < 0.05f)
+            if (corr.magnitude < 0.02f) //Modifié le 21/07 - passer de 0.05 à 0.02 pour que l'apprenant ressente mieux la force de correction
                 corr = Vector3.zero;
 
             // Limite de securite

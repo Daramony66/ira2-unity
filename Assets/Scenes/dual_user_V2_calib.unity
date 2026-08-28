@@ -14748,10 +14748,10 @@ MonoBehaviour:
   followMaxForce: 0.3
   mutualStiffness: 5
   mutualDamping: 2
-  mutualMaxForce: 0.2
+  mutualMaxForce: 0.4
   scalingFactor: 0.025
   forceGraph: {fileID: 2124397703}
-  gravityComp: 0.15
+  gravityComp: 0.1
 --- !u!4 &627136645572626785
 Transform:
   m_ObjectHideFlags: 0
@@ -20254,10 +20254,10 @@ MonoBehaviour:
   correctionMaxForce: 0.3
   mutualStiffness: 5
   mutualDamping: 2
-  mutualMaxForce: 0.2
+  mutualMaxForce: 0.25
   expertPlugin: {fileID: 627136644753356290}
   forceGraph: {fileID: 2124397703}
-  gravityComp: 0.15
+  gravityComp: 0.1
 --- !u!4 &7912440031343710819
 Transform:
   m_ObjectHideFlags: 0
